@@ -44,13 +44,15 @@ contract RICRegistry {
     mapping(uint256 => L1Addresses) activatedRollupsL1Addresses;
     mapping(uint256 => Status) rollupStatus;
 
-    mapping (address => uint256) public providerStake;
+    mapping(address => uint256) public providerStake;
 
     event rollupRequested(uint256 chainID, address requester, uint256 timestamp);
     event rollupQueued(uint256 chainID, address provider, uint256 requestedTimestamp, uint256 timeoutTimestamp);
     event rollupActivated(uint256 chainID, address provider);
 
-    event providerStaked(address provider, uint256 amount);
+    event providerStaked(address provider);
+    event providerUnstaked(address provider);
+    event providerSlashed(address provider, address slasher);
 
     constructor(uint256 _queueTimeout, uint256 _providerStakeAmount) {
         chainid = block.chainid;
@@ -58,7 +60,6 @@ contract RICRegistry {
         providerStakeAmount = _providerStakeAmount;
     }
 
-    
     function requestRollup(uint256 chainID_, bytes memory config) public {
         require(rollupStatus[chainID_].chainID == 0, "RICRegistry: chainID already exists");
 
@@ -79,13 +80,19 @@ contract RICRegistry {
     function queueRollup(uint256 chainID_, address provider) public {
         require(providerStake[provider] == providerStakeAmount, "RICRegistry: provider does not have enough stake");
         require(rollupStatus[chainID_].chainID != 0, "RICRegistry: chainID does not exist");
-        require(rollupStatus[chainID_].status == RollupStatus.REQUESTED || block.timestamp - rollupStatus[chainID_].queuedTimestamp >= queueTimeout, "RICRegistry: rollup not in REQUESTED status or timeout not reached");
-        
+        require(
+            rollupStatus[chainID_].status == RollupStatus.REQUESTED
+                || block.timestamp - rollupStatus[chainID_].queuedTimestamp >= queueTimeout,
+            "RICRegistry: rollup not in REQUESTED status or timeout not reached"
+        );
 
-        if (rollupStatus[chainID_].status == RollupStatus.QUEUED && block.timestamp - rollupStatus[chainID_].queuedTimestamp >= queueTimeout ) {
+        if (
+            rollupStatus[chainID_].status == RollupStatus.QUEUED
+                && block.timestamp - rollupStatus[chainID_].queuedTimestamp >= queueTimeout
+        ) {
             // slash previous provider and set new provider as queued
             _slashProvider(rollupStatus[chainID_].provider);
-        } 
+        }
 
         // set rollup status
         rollupStatus[chainID_].status = RollupStatus.QUEUED;
@@ -109,9 +116,7 @@ contract RICRegistry {
 
         // emit event
         emit rollupActivated(chainID_, msg.sender);
-
     }
-
 
     // provider stuff
     function _slashProvider(address provider) internal {
@@ -119,30 +124,21 @@ contract RICRegistry {
         providerStake[provider] -= providerStakeAmount;
         payable(msg.sender).transfer(providerStakeAmount);
 
+        emit providerSlashed(provider, msg.sender);
     }
 
     function stakeAsProvider() public payable {
         require(msg.value == providerStakeAmount, "RICRegistry: incorrect amount of ETH sent");
         require(providerStake[msg.sender] == 0, "RICRegistry: provider already has stake");
-        
+
         providerStake[msg.sender] == providerStakeAmount;
+        emit providerStaked(msg.sender);
     }
 
-    function withdrawStake() public {
+    function providerUnstake() public {
         require(providerStake[msg.sender] == providerStakeAmount, "RICRegistry: provider does not have stake");
         providerStake[msg.sender] = 0;
         payable(msg.sender).transfer(providerStakeAmount);
+        emit providerUnstaked(msg.sender);
     }
-
-
-
-
-
-
-    
 }
-
-    
-
-
-    
