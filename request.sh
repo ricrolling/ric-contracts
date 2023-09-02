@@ -3,7 +3,7 @@ set -ex
 
 # Usage: ./request.sh <name> <chain_id>
 
-ACC=0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+ACC=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 CONTRACT=0x5fbdb2315678afecb367f032d93f642f64180aa3
 NAME=$1
 CHAIN_ID=$2
