@@ -122,6 +122,7 @@ contract RICRegistryTest is Test {
 
         RICRegistry.Status memory status = registry.getRollupStatus(chainid);
 
+        // warp to timeout
         vm.warp(status.queuedTimestamp + timeout + 1);
 
         // providerTwo queues rollup after timeout
@@ -141,8 +142,39 @@ contract RICRegistryTest is Test {
         assertEq(providerTwo.balance, 10 ether);
     }
 
+    function test_RollupActivated() public {
+        uint chainid = 69;
+
+        // userOne requests rollup
+        _requestRollup(userOne, chainid);
+
+        // providerOne queues rollup
+        _queueRollup(providerOne, chainid);
 
 
+        bytes memory l1Addresses = abi.encodePacked("l1Addresses");
+
+        // // providerOne activates rollup
+        // registry._activateRollup(providerOne, chainid, l1Addresses);
+
+        // RICRegistry.Status memory status = registry.getRollupStatus(chainid);
+
+        // assertEq(uint(status.status), uint(RICRegistry.RollupStatus.ACTIVATED));
+        // assertEq(status.provider, providerOne);
+        // assertEq(status.queuedTimestamp, block.timestamp);
+        // assertEq(status.chainID, chainid);
+        // assertEq(status.config, config);
+
+        // // cannot activate rollup if not queued
+        // err = bytes("RICRegistry: rollup not in QUEUED status");
+        // vm.expectRevert(err);
+        // registry.activateRollup(chainid);
+
+        // // cannot activate rollup if already activated
+        // err = bytes("RICRegistry: rollup not in QUEUED status");
+        // vm.expectRevert(err);
+        // registry.activateRollup(chainid);
+    }
 
     function _requestRollup(address _user,uint _chainid) internal {
         vm.prank(_user);
@@ -152,6 +184,11 @@ contract RICRegistryTest is Test {
     function _queueRollup(address _provider,uint _chainid) internal {
         vm.prank(_provider);
         registry.queueRollup(_chainid);
+    }
+
+    function _activateRollup(address _provider,uint _chainid, bytes memory _l1Addresses) internal {
+        vm.prank(_provider);
+        registry.deployRollup(_chainid, _l1Addresses);
     }
 
 }
