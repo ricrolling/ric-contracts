@@ -9,9 +9,9 @@
 //     function run() public {
 //         uint256 chainID = 69;
 
-//         bytes config = abi.encodePacked("config");
+//         bytes memory config = abi.encodePacked("config");
 
-//         RICRegistry registry = RICRegistry("ADDRESS_HERE");
+//         RICRegistry registry = RICRegistry();
 
 //         registry.requestRollup(chainID, config);
 //     }
