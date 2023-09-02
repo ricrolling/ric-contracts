@@ -6,26 +6,28 @@ contract RICRegistry {
     uint256 public queueTimeout;
     uint256 public providerStakeAmount;
 
-    struct L1Addresses {
-        address SystemConfigProxy;
-        address L1ERC721Bridge;
-        address L1CrossDomainMessengerProxy;
-        address OptimismMintableERC20Factory;
-        address L2OutputOracleProxy;
-        address L1CrossDomainMessenger;
-        address ProxyAdmin;
-        address OptimismPortalProxy;
-        address L2OutputOracle;
-        address SystemConfig;
-        address L1ERC721BridgeProxy;
-        address DisputeGameFactory;
-        address AddressManager;
-        address L1StandardBridge;
-        address L1StandardBridgeProxy;
-        address OptimismMintableERC20FactoryProxy;
-        address OptimismPortal;
-        address DisputeGameFactoryProxy;
-    }
+    // struct L1Addresses {
+    //     address SystemConfigProxy;
+    //     address L1ERC721Bridge;
+    //     address L1CrossDomainMessengerProxy;
+    //     address OptimismMintableERC20Factory;
+    //     address L2OutputOracleProxy;
+    //     address L1CrossDomainMessenger;
+    //     address ProxyAdmin;
+    //     address OptimismPortalProxy;
+    //     address L2OutputOracle;
+        // address SystemConfig;
+        // address L1ERC721BridgeProxy;
+        // address DisputeGameFactory;
+        // address AddressManager;
+        // address L1StandardBridge;
+        // address L1StandardBridgeProxy;
+        // address OptimismMintableERC20FactoryProxy;
+        // address OptimismPortal;
+        // address DisputeGameFactoryProxy;
+    // }
+
+
 
     struct Status {
         RollupStatus status;
@@ -41,8 +43,8 @@ contract RICRegistry {
         ACTIVATED
     }
 
-    mapping(uint256 => L1Addresses) activatedRollupsL1Addresses;
-    mapping(uint256 => Status) rollupStatus;
+    mapping(uint256 => bytes) public activatedRollupsL1Addresses;
+    mapping(uint256 => Status) public rollupStatus;
 
     mapping(address => uint256) public providerStake;
 
@@ -77,8 +79,8 @@ contract RICRegistry {
         emit rollupRequested(chainID_, msg.sender, block.timestamp);
     }
 
-    function queueRollup(uint256 chainID_, address provider) public {
-        require(providerStake[provider] == providerStakeAmount, "RICRegistry: provider does not have enough stake");
+    function queueRollup(uint256 chainID_) public {
+        require(providerStake[msg.sender] >= providerStakeAmount, "RICRegistry: provider does not have enough stake");
         require(rollupStatus[chainID_].chainID != 0, "RICRegistry: chainID does not exist");
         require(
             rollupStatus[chainID_].status == RollupStatus.REQUESTED
@@ -96,14 +98,14 @@ contract RICRegistry {
 
         // set rollup status
         rollupStatus[chainID_].status = RollupStatus.QUEUED;
-        rollupStatus[chainID_].provider = provider;
+        rollupStatus[chainID_].provider = msg.sender;
         rollupStatus[chainID_].queuedTimestamp = block.timestamp;
 
         // emit event
-        emit rollupQueued(chainID_, provider, block.timestamp, block.timestamp + queueTimeout);
+        emit rollupQueued(chainID_, msg.sender, block.timestamp, block.timestamp + queueTimeout);
     }
 
-    function deployRollup(uint256 chainID_, L1Addresses calldata l1Addresses_) public {
+    function deployRollup(uint256 chainID_, bytes calldata l1Addresses_) public {
         require(rollupStatus[chainID_].chainID != 0, "RICRegistry: chainID does not exist");
         require(rollupStatus[chainID_].status == RollupStatus.QUEUED, "RICRegistry: rollup not in QUEUED state");
         require(rollupStatus[chainID_].provider == msg.sender, "RICRegistry: msg.sender is not the provider");
@@ -131,7 +133,7 @@ contract RICRegistry {
         require(msg.value == providerStakeAmount, "RICRegistry: incorrect amount of ETH sent");
         require(providerStake[msg.sender] == 0, "RICRegistry: provider already has stake");
 
-        providerStake[msg.sender] == providerStakeAmount;
+        providerStake[msg.sender] = providerStakeAmount;
         emit providerStaked(msg.sender);
     }
 
@@ -141,4 +143,9 @@ contract RICRegistry {
         payable(msg.sender).transfer(providerStakeAmount);
         emit providerUnstaked(msg.sender);
     }
+
+    function getRollupStatus(uint256 chainID_) public view returns (Status memory) {
+        return rollupStatus[chainID_];
+    }
 }
+
