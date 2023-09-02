@@ -157,4 +157,8 @@ contract RICRegistry {
     function getRollupStatus(uint256 chainID_) public view returns (Status memory) {
         return rollupStatus[chainID_];
     }
+
+    function getUserChainIDs(address requestorAddr) external view returns (uint256[] memory) {
+        return userToRollupChainIDs[requestorAddr];
+    }
 }
