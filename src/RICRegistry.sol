@@ -47,13 +47,13 @@ contract RICRegistry {
 
     mapping(address => uint256) public providerStake;
 
-    event rollupRequested(uint256 chainID, address requester, uint256 timestamp);
-    event rollupQueued(uint256 chainID, address provider, uint256 requestedTimestamp, uint256 timeoutTimestamp);
-    event rollupActivated(uint256 chainID, address provider);
+    event rollupRequested(uint256 indexed chainID, address indexed requester, uint256 indexed timestamp);
+    event rollupQueued(uint256 indexed chainID, address indexed provider, uint256 indexed requestedTimestamp, uint256 timeoutTimestamp);
+    event rollupActivated(uint256 indexed chainID, address indexed provider);
 
-    event providerStaked(address provider);
-    event providerUnstaked(address provider);
-    event providerSlashed(address provider, address slasher);
+    event providerStaked(address indexed provider);
+    event providerUnstaked(address indexed provider);
+    event providerSlashed(address indexed provider, address indexed slasher);
 
     constructor(uint256 _queueTimeout, uint256 _providerStakeAmount) {
         chainid = block.chainid;
