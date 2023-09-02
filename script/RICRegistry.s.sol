@@ -12,16 +12,12 @@ contract RICRegistryScript is Script {
 
         // stake 1 ether for each provider
         registry.stakeAsProvider{value: 1 ether}();
-        
 
         bytes memory config = abi.encodePacked("config");
 
         // stake 1 ether for each provider
         registry.requestRollup("first rollup", 69, config);
 
-        address alice = vm.addr(0x000000000000000000000000000000000000000000000000000000616c696365);
-        vm.deal(alice, 10 ether);
         vm.stopBroadcast();
-    
     }
 }

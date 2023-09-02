@@ -16,15 +16,15 @@ contract RICRegistry {
     //     address ProxyAdmin;
     //     address OptimismPortalProxy;
     //     address L2OutputOracle;
-    // address SystemConfig;
-    // address L1ERC721BridgeProxy;
-    // address DisputeGameFactory;
-    // address AddressManager;
-    // address L1StandardBridge;
-    // address L1StandardBridgeProxy;
-    // address OptimismMintableERC20FactoryProxy;
-    // address OptimismPortal;
-    // address DisputeGameFactoryProxy;
+    //     address SystemConfig;
+    //     address L1ERC721BridgeProxy;
+    //     address DisputeGameFactory;
+    //     address AddressManager;
+    //     address L1StandardBridge;
+    //     address L1StandardBridgeProxy;
+    //     address OptimismMintableERC20FactoryProxy;
+    //     address OptimismPortal;
+    //     address DisputeGameFactoryProxy;
     // }
 
     struct Status {
@@ -47,8 +47,14 @@ contract RICRegistry {
 
     mapping(address => uint256) public providerStake;
 
+    mapping(address => uint256[]) public userToRollupChainIDs;
+
+    address[] public providers;
+
     event rollupRequested(uint256 indexed chainID, address indexed requester, uint256 indexed timestamp);
-    event rollupQueued(uint256 indexed chainID, address indexed provider, uint256 indexed requestedTimestamp, uint256 timeoutTimestamp);
+    event rollupQueued(
+        uint256 indexed chainID, address indexed provider, uint256 indexed requestedTimestamp, uint256 timeoutTimestamp
+    );
     event rollupActivated(uint256 indexed chainID, address indexed provider);
 
     event providerStaked(address indexed provider);
@@ -61,8 +67,10 @@ contract RICRegistry {
         providerStakeAmount = _providerStakeAmount;
     }
 
-    function requestRollup(string memory name,uint256 chainID_, bytes memory config) public {
+    function requestRollup(string memory name, uint256 chainID_, bytes memory config) public {
         require(rollupStatus[chainID_].chainID == 0, "RICRegistry: chainID already exists");
+
+        userToRollupChainIDs[msg.sender].push(chainID_);
 
         // set rollup status
         rollupStatus[chainID_] = Status({
@@ -132,6 +140,8 @@ contract RICRegistry {
     function stakeAsProvider() public payable {
         require(msg.value == providerStakeAmount, "RICRegistry: incorrect amount of ETH sent");
         require(providerStake[msg.sender] == 0, "RICRegistry: provider already has stake");
+
+        providers.push(msg.sender);
 
         providerStake[msg.sender] = providerStakeAmount;
         emit providerStaked(msg.sender);
