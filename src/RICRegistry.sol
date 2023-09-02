@@ -161,4 +161,8 @@ contract RICRegistry {
     function getUserChainIDs(address requestorAddr) external view returns (uint256[] memory) {
         return userToRollupChainIDs[requestorAddr];
     }
+
+    function getProviders() external view returns (address[] memory) {
+        return providers;
+    }
 }
