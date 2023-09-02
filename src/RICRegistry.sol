@@ -29,6 +29,7 @@ contract RICRegistry {
 
     struct Status {
         RollupStatus status;
+        string name;
         address provider;
         uint256 queuedTimestamp;
         uint256 chainID;
@@ -60,12 +61,13 @@ contract RICRegistry {
         providerStakeAmount = _providerStakeAmount;
     }
 
-    function requestRollup(uint256 chainID_, bytes memory config) public {
+    function requestRollup(string memory name,uint256 chainID_, bytes memory config) public {
         require(rollupStatus[chainID_].chainID == 0, "RICRegistry: chainID already exists");
 
         // set rollup status
         rollupStatus[chainID_] = Status({
             status: RollupStatus.REQUESTED,
+            name: name,
             provider: address(0),
             queuedTimestamp: block.timestamp,
             chainID: chainID_,

@@ -176,8 +176,9 @@ contract RICRegistryTest is Test {
     }
 
     function _requestRollup(address _user, uint256 _chainid) internal {
+        string memory name = "My First Rollup";
         vm.prank(_user);
-        registry.requestRollup(_chainid, config);
+        registry.requestRollup(name, _chainid, config);
     }
 
     function _queueRollup(address _provider, uint256 _chainid) internal {
