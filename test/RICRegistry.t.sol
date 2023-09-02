@@ -38,7 +38,7 @@ contract RICRegistryTest is Test {
         config = abi.encodePacked("config");
 
         // distribute eth to each user
-        for (uint i = 0; i < users.length; i++) {
+        for (uint256 i = 0; i < users.length; i++) {
             vm.deal(users[i], 10 ether);
         }
 
@@ -55,13 +55,13 @@ contract RICRegistryTest is Test {
     }
 
     function test_RollupRequested() public {
-        uint chainid = 69;
+        uint256 chainid = 69;
 
         _requestRollup(userOne, chainid);
 
         RICRegistry.Status memory status = registry.getRollupStatus(chainid);
 
-        assertEq(uint(status.status), uint(RICRegistry.RollupStatus.REQUESTED));
+        assertEq(uint256(status.status), uint256(RICRegistry.RollupStatus.REQUESTED));
         assertEq(status.provider, address(0));
         assertEq(status.queuedTimestamp, block.timestamp);
         assertEq(status.chainID, chainid);
@@ -73,7 +73,7 @@ contract RICRegistryTest is Test {
     }
 
     function test_RollupQueued() public {
-        uint chainid = 69;
+        uint256 chainid = 69;
 
         _requestRollup(userOne, chainid);
 
@@ -95,7 +95,7 @@ contract RICRegistryTest is Test {
 
         RICRegistry.Status memory status = registry.getRollupStatus(chainid);
 
-        assertEq(uint(status.status), uint(RICRegistry.RollupStatus.QUEUED));
+        assertEq(uint256(status.status), uint256(RICRegistry.RollupStatus.QUEUED));
         assertEq(status.provider, providerOne);
         assertEq(status.queuedTimestamp, block.timestamp);
         assertEq(status.chainID, chainid);
@@ -108,7 +108,7 @@ contract RICRegistryTest is Test {
     }
 
     function test_RollupQueuedAndExpired() public {
-        uint chainid = 69;
+        uint256 chainid = 69;
 
         _requestRollup(userOne, chainid);
 
@@ -131,7 +131,7 @@ contract RICRegistryTest is Test {
         // assert new values
         status = registry.getRollupStatus(chainid);
 
-        assertEq(uint(status.status), uint(RICRegistry.RollupStatus.QUEUED));
+        assertEq(uint256(status.status), uint256(RICRegistry.RollupStatus.QUEUED));
         assertEq(status.provider, providerTwo);
         assertEq(status.queuedTimestamp, block.timestamp);
         assertEq(status.chainID, chainid);
@@ -143,14 +143,13 @@ contract RICRegistryTest is Test {
     }
 
     function test_RollupActivated() public {
-        uint chainid = 69;
+        uint256 chainid = 69;
 
         // userOne requests rollup
         _requestRollup(userOne, chainid);
 
         // providerOne queues rollup
         _queueRollup(providerOne, chainid);
-
 
         bytes memory l1Addresses = abi.encodePacked("l1Addresses");
 
@@ -176,20 +175,18 @@ contract RICRegistryTest is Test {
         // registry.activateRollup(chainid);
     }
 
-    function _requestRollup(address _user,uint _chainid) internal {
+    function _requestRollup(address _user, uint256 _chainid) internal {
         vm.prank(_user);
         registry.requestRollup(_chainid, config);
     }
 
-    function _queueRollup(address _provider,uint _chainid) internal {
+    function _queueRollup(address _provider, uint256 _chainid) internal {
         vm.prank(_provider);
         registry.queueRollup(_chainid);
     }
 
-    function _activateRollup(address _provider,uint _chainid, bytes memory _l1Addresses) internal {
+    function _activateRollup(address _provider, uint256 _chainid, bytes memory _l1Addresses) internal {
         vm.prank(_provider);
         registry.deployRollup(_chainid, _l1Addresses);
     }
-
 }
-

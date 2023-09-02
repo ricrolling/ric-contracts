@@ -16,18 +16,16 @@ contract RICRegistry {
     //     address ProxyAdmin;
     //     address OptimismPortalProxy;
     //     address L2OutputOracle;
-        // address SystemConfig;
-        // address L1ERC721BridgeProxy;
-        // address DisputeGameFactory;
-        // address AddressManager;
-        // address L1StandardBridge;
-        // address L1StandardBridgeProxy;
-        // address OptimismMintableERC20FactoryProxy;
-        // address OptimismPortal;
-        // address DisputeGameFactoryProxy;
+    // address SystemConfig;
+    // address L1ERC721BridgeProxy;
+    // address DisputeGameFactory;
+    // address AddressManager;
+    // address L1StandardBridge;
+    // address L1StandardBridgeProxy;
+    // address OptimismMintableERC20FactoryProxy;
+    // address OptimismPortal;
+    // address DisputeGameFactoryProxy;
     // }
-
-
 
     struct Status {
         RollupStatus status;
@@ -148,4 +146,3 @@ contract RICRegistry {
         return rollupStatus[chainID_];
     }
 }
-
